@@ -1,0 +1,15 @@
+{
+  "name": "dia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "De-identification Assistant - client-side de-identification and re-identification for documents shared with LLMs",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "test:e2e": "playwright test",
+    "serve": "node tools/serve.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

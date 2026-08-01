@@ -1,0 +1,10 @@
+node_modules/
+test-results/
+playwright-report/
+.tmp/
+*.local
+# Never commit real student data or exported maps
+*reidentification-map*.json
+*reidentification-map*.json.enc
+protected_UPLOAD-TO-AI*.zip
+restored_feedback*.zip
