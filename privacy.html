@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works — De-identification Assistant</title>
+<meta name="description" content="How the De-identification Assistant processes documents locally, what it protects against, and what it explicitly does not do.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+<header class="masthead">
+  <div class="shell masthead__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">DIA</span>
+      <span>De-identification Assistant <span class="brand__sub">· for coursework</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="protect.html">Protect</a>
+      <a href="restore.html">Restore</a>
+      <a href="privacy.html">How it works</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="shell shell--narrow">
+    <div class="page-head">
+      <h1>How it works</h1>
+      <p class="lede">
+        What this tool does to your files, what keeps them on your machine, and — the part that
+        matters more — what it does not protect you from.
+      </p>
+    </div>
+
+    <h2>Where the processing happens</h2>
+    <p>
+      Everything runs in your browser. When you load a document, it is read by JavaScript on this
+      page, examined, rewritten, and handed back to you as a download. It is never uploaded, because
+      there is nothing to upload it to: this site is static files on a web host, with no server-side
+      code and no database.
+    </p>
+    <p>
+      That claim is enforced rather than promised. The pages are served with a
+      <a href="https://developer.mozilla.org/docs/Web/HTTP/CSP">Content Security Policy</a> that
+      includes <code>connect-src 'none'</code>, which blocks the browser APIs a page would use to
+      send data anywhere — <code>fetch</code>, <code>XMLHttpRequest</code>, WebSockets and
+      <code>sendBeacon</code> — and <code>default-src 'none'</code>, so a request disguised as an
+      image or a font is blocked too. You can watch this yourself: open your browser's developer
+      tools, switch to the Network tab, and run a batch. After the page and its scripts load,
+      nothing further is requested.
+    </p>
+    <div class="note">
+      <p>
+        This is strong evidence, not a mathematical proof. It does not protect you against a browser
+        extension reading the page, a compromised computer, or a future version of this site that
+        changes the policy. If your threat model includes those, that is a different conversation
+        than this tool can have with you.
+      </p>
+    </div>
+
+    <h2>Accurate wording for what you can say about it</h2>
+    <p>
+      "All processing occurs locally after the application has loaded" is a claim this tool supports.
+      "Works offline" is not, quite: the page has to be fetched from the web host the first time, and
+      there is no service worker in this version to keep it cached reliably.
+    </p>
+
+    <h2 id="ferpa">FERPA, and why de-identification is harder than deleting names</h2>
+    <p>
+      Under FERPA, information is not de-identified simply because obvious identifiers were stripped
+      out. The test is whether a reasonable person in the school community could still identify the
+      student, using the record alone or in combination with other information they have. That is a
+      higher bar than removing names and email addresses, and it is not a bar software can clear on
+      its own.
+    </p>
+    <p>Papers routinely stay identifiable through details this tool has no way to recognize:</p>
+    <ul>
+      <li>"As the only student from Iceland in the nursing program…"</li>
+      <li>A parent's job, especially a public one</li>
+      <li>An uncommon medical condition, disability, or family circumstance</li>
+      <li>A distinctive internship, athletic achievement, or military posting</li>
+      <li>A quotation from something the student previously published</li>
+      <li>Course, section, instructor, and term together, in a small program</li>
+    </ul>
+    <p>
+      The review screen exists for exactly this. You can select any passage and redact it by hand,
+      and that redaction behaves like any other token — it is removed from the document and recorded
+      in your private map.
+    </p>
+    <div class="note note--warn">
+      <p>
+        <strong>This tool assists with de-identification. It cannot guarantee that a document is
+        anonymous or that any particular use is FERPA-compliant.</strong> You remain responsible for
+        reviewing the protected content before you disclose it, and for following your institution's
+        policy. Ask your registrar, privacy office, or IT department before putting student work into
+        an AI service. Nothing here is legal advice.
+      </p>
+    </div>
+
+    <h2 id="heppner">Why confidentiality of AI conversations is not something to assume</h2>
+    <p>
+      In <em>United States v. Heppner</em> (S.D.N.Y., February 2026), a federal district court held
+      that, on the facts of that case, a defendant's self-directed exchanges with a publicly
+      available AI platform were not protected by attorney–client privilege or the work-product
+      doctrine. The reasoning turned on the specifics: the conversations were not undertaken at the
+      direction of counsel, and the court considered the privacy terms that applied to that account.
+      Commentators have argued the opinion reads too categorically, and the court itself
+      acknowledged that lawyer-directed use might come out differently.
+    </p>
+    <p>
+      It is not a FERPA case and it says nothing about student records. It is worth knowing for one
+      narrower reason: it is a concrete example of a court declining to treat material submitted to a
+      consumer AI service as legally confidential. If you would not be comfortable with a
+      third party holding a student's paper, do not send the paper.
+    </p>
+
+    <h2>What happens to each kind of file</h2>
+    <div class="scroll-x">
+      <table class="plain">
+        <thead><tr><th>Format</th><th>How it is read</th><th>What you should know</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Word (.docx)</td>
+            <td>Plain-text extraction only</td>
+            <td>Comments, headers, footers, footnotes and tracked deletions are not included in the
+              extracted text. When a document contains them you get a warning, because names in
+              those places are still in your original file.</td>
+          </tr>
+          <tr>
+            <td>PDF</td>
+            <td>Text layer only</td>
+            <td>Scanned or image-based PDFs are refused, not passed through. There is no OCR here, so
+              a scan would produce an empty document that looks perfectly clean — the most dangerous
+              possible outcome.</td>
+          </tr>
+          <tr>
+            <td>Markdown, text</td>
+            <td>Read directly</td>
+            <td>Non-UTF-8 files are detected and re-read as Windows-1252 where possible.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="faint">
+      Output is always Markdown text. Formatting, tables and images are not carried through — for
+      grading feedback that is rarely a loss, and it keeps a whole class of surprises out of the
+      file you hand to an AI service.
+    </p>
+
+    <h2>Your private map</h2>
+    <p>
+      The re-identification map is the list of which token means which student. It is the most
+      sensitive thing this tool produces — in effect a small roster — and it is the file you must
+      never upload to an AI service.
+    </p>
+    <p>
+      By default it is encrypted with a passphrase you choose, using AES-256-GCM with a key derived
+      by PBKDF2-SHA-256 at 600,000 iterations. You can turn that off, and if you do, the file is
+      plain readable JSON and should be stored exactly as carefully as your gradebook. There is no
+      recovery if you forget the passphrase; the map cannot be opened and feedback would have to be
+      matched up by hand.
+    </p>
+    <p>
+      Maps are kept in memory until you download them. Nothing is written to local storage, session
+      storage, cookies, or the URL.
+    </p>
+
+    <h2>Tokens, and why they carry a random code</h2>
+    <p>
+      A token looks like <code class="tokenlist">[PP_7K3M9Q2A_S07]</code>. The middle section is a
+      random code generated for each batch. It means that if you later restore feedback using the
+      wrong map, the mismatch is detected and reported rather than quietly substituting one student's
+      name into another student's feedback. The numbers are assigned in random order, so token
+      <code>S01</code> is not the first student alphabetically.
+    </p>
+
+    <h2>Known limitations in this version</h2>
+    <ul>
+      <li>Only names on your roster are found automatically. Third parties mentioned in a paper are
+        your job, on the review screen.</li>
+      <li>No optical character recognition, so scanned documents cannot be processed.</li>
+      <li>Word documents come back as text, not as Word documents.</li>
+      <li>Nickname matching is not built in: a roster listing "Robert" will not match "Bob" on its
+        own. Add the nickname as its own roster line if your students use one.</li>
+      <li>PDF text is extracted in the order the file stores it, which for multi-column layouts and
+        tables may not be reading order. The review screen shows you the text that will be exported,
+        not a picture of the page.</li>
+    </ul>
+
+    <h2>Source and dependencies</h2>
+    <p>
+      The application is plain HTML, CSS and JavaScript modules with no build step, so the code that
+      runs is the code in the repository. Three third-party libraries are included, unmodified and
+      served from this site rather than a CDN: <strong>mammoth.js</strong> for Word extraction,
+      <strong>pdf.js</strong> for PDFs, and <strong>JSZip</strong> for archives. Their versions and
+      licenses are recorded in the repository, and they need periodic updating — document parsers are
+      exactly the kind of component that receives security fixes.
+    </p>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="shell">
+    <p>De-identification Assistant — a free tool for instructors and students. Runs entirely in your browser.</p>
+    <p>No large language model is called by this application, at any point, for any purpose.</p>
+  </div>
+</footer>
+
+<script type="module" src="src/ui/nav.js"></script>
+</body>
+</html>

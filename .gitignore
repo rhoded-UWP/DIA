@@ -8,3 +8,5 @@ playwright-report/
 *reidentification-map*.json.enc
 protected_UPLOAD-TO-AI*.zip
 restored_feedback*.zip
+
+.tmp/

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>De-identification Assistant</title>
+<meta name="description" content="Remove student names and personal information from documents before sending them to an AI service, then put the names back into the feedback. Runs entirely in your browser.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+<header class="masthead">
+  <div class="shell masthead__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">DIA</span>
+      <span>De-identification Assistant <span class="brand__sub">· for coursework</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="protect.html">Protect</a>
+      <a href="restore.html">Restore</a>
+      <a href="privacy.html">How it works</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="shell">
+    <div class="page-head">
+      <h1>Grade with an AI tool without handing it your students' names</h1>
+      <p class="lede">
+        Drop in a set of papers. This tool replaces names, email addresses, student IDs and other
+        personal details with placeholder tokens, and gives you a separate private file that maps
+        those tokens back. You send only the placeholder version to the AI service. When the
+        feedback comes back, this tool puts the real names into it.
+      </p>
+    </div>
+
+    <div class="note note--good">
+      <strong class="note__title">Nothing you load here leaves your computer</strong>
+      <p>
+        All the work happens inside this browser tab. There is no server to upload to, no account,
+        no analytics, and the page is served with a policy that blocks it from making network
+        requests at all. <a href="privacy.html">How that is enforced, and what it does not cover.</a>
+      </p>
+    </div>
+
+    <div class="tiles">
+      <a class="tile" href="protect.html">
+        <h3>Protect documents →</h3>
+        <p>
+          Load your class roster and a batch of papers. Review what was found, decide anything
+          ambiguous, then download the protected files plus a private re-identification map.
+        </p>
+      </a>
+      <a class="tile" href="restore.html">
+        <h3>Restore feedback →</h3>
+        <p>
+          Bring back the AI's feedback along with your private map. Tokens become names again, and
+          a batch response is split into one file per student.
+        </p>
+      </a>
+    </div>
+
+    <h2 id="how">How a batch works</h2>
+    <ol class="flow">
+      <li><strong>Roster in</strong> Paste your class list so the tool knows which names to look for.</li>
+      <li><strong>Papers in</strong> Word, PDF, Markdown or plain text. Metadata is read but never exported.</li>
+      <li><strong>You review</strong> Every match is shown in context. You confirm, reject, or redact more by hand.</li>
+      <li><strong>Two downloads</strong> The protected papers for the AI, and the private map for you only.</li>
+      <li><strong>Names come back</strong> Paste the AI's feedback in with your map to re-identify it.</li>
+    </ol>
+
+    <div class="card">
+      <h2>What it can and cannot do</h2>
+      <div class="stack">
+        <p class="muted">
+          This tool <strong>assists</strong> with de-identification. It does not certify that a
+          document is anonymous, and it cannot make a judgement about FERPA on your behalf.
+        </p>
+        <div class="note note--warn">
+          <strong class="note__title">The limits worth knowing before you start</strong>
+          <ul>
+            <li>It finds names from the roster you provide. Someone mentioned in an essay who is not on
+              the roster — a parent, a roommate, a supervisor at a placement — will not be found
+              automatically. You can redact those by hand on the review screen.</li>
+            <li>Removing names does not always make a paper anonymous. A student who writes that they
+              are the only person from their country in the program, or describes a rare medical
+              condition, may still be identifiable to a reader who knows the class.</li>
+            <li>Scanned PDFs have no text to read. Those are refused rather than passed through
+              looking clean.</li>
+          </ul>
+        </div>
+        <p class="faint">
+          Check with your registrar, privacy office or IT department before using any AI service with
+          student work. This tool is not legal advice, and its authors are not your institution.
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="shell">
+    <p>De-identification Assistant — a free tool for instructors and students. Runs entirely in your browser.</p>
+    <p>No large language model is called by this application, at any point, for any purpose.</p>
+  </div>
+</footer>
+
+<script type="module" src="src/ui/nav.js"></script>
+</body>
+</html>

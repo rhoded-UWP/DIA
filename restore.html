@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Restore feedback — De-identification Assistant</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+<header class="masthead">
+  <div class="shell masthead__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">DIA</span>
+      <span>De-identification Assistant <span class="brand__sub">· for coursework</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="protect.html">Protect</a>
+      <a href="restore.html">Restore</a>
+      <a href="privacy.html">How it works</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="shell">
+    <div class="page-head">
+      <h1>Restore feedback</h1>
+      <p>Put the real names back into the AI's feedback, using the private map from when you protected the papers.</p>
+    </div>
+
+    <!-- Step 1 -->
+    <section class="card step step--active" aria-labelledby="h-map">
+      <div class="card__title">
+        <span class="step__number">1</span>
+        <h2 id="h-map">Your re-identification map</h2>
+        <span class="card__hint">The KEEP-PRIVATE file from the protect step</span>
+      </div>
+
+      <div class="dropzone" id="map-dropzone" role="button" tabindex="0">
+        <span class="dropzone__title">Drop the map here, or click to choose</span>
+        <p>reidentification-map…json or …json.enc</p>
+        <input type="file" id="map-input" accept=".json,.enc" class="visually-hidden" aria-label="Re-identification map">
+      </div>
+
+      <div id="passphrase-prompt" hidden>
+        <div class="field">
+          <label for="map-passphrase">This map is encrypted. Enter its passphrase.</label>
+          <input type="password" id="map-passphrase" autocomplete="current-password" spellcheck="false">
+        </div>
+        <div class="btn-row">
+          <button type="button" id="unlock-btn" class="btn-primary">Unlock the map</button>
+        </div>
+      </div>
+
+      <div id="map-status"></div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="card step" aria-labelledby="h-feedback">
+      <div class="card__title">
+        <span class="step__number">2</span>
+        <h2 id="h-feedback">The feedback from the AI</h2>
+        <span class="card__hint">Files, or one pasted reply</span>
+      </div>
+
+      <div class="dropzone" id="feedback-dropzone" role="button" tabindex="0">
+        <span class="dropzone__title">Drop feedback files here, or click to choose</span>
+        <p>.md or .txt — one per student, or one combined file</p>
+        <input type="file" id="feedback-input" multiple accept=".md,.markdown,.txt,.text" class="visually-hidden" aria-label="Feedback files">
+      </div>
+      <ul class="filelist" id="feedback-filelist"></ul>
+
+      <div class="field">
+        <label for="feedback-text">Or paste the reply here</label>
+        <textarea id="feedback-text" spellcheck="false" placeholder="Paste the whole reply. If it starts each section with a &quot;## Document [PP_…_D01]&quot; heading, it will be split into one file per student."></textarea>
+      </div>
+
+      <div class="checkline">
+        <input type="checkbox" id="lenient-toggle">
+        <label for="lenient-toggle">
+          Repair tokens the AI reformatted (lowercased, spaced out, or missing brackets)
+        </label>
+      </div>
+      <p class="field__help">
+        Off by default. A repaired token that was guessed wrong would write one student's name into
+        another student's feedback, so damaged tokens are reported rather than fixed unless you ask.
+      </p>
+
+      <div class="btn-row">
+        <button type="button" id="restore-btn" class="btn-primary" disabled>Restore names</button>
+        <span class="faint" id="restore-gate-note"></span>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="step" id="step-result" hidden aria-labelledby="h-result">
+      <div class="card">
+        <div class="card__title">
+          <span class="step__number">3</span>
+          <h2 id="h-result">What happened</h2>
+          <span class="card__hint">Read this before you send anything to students</span>
+        </div>
+
+        <div class="summary-grid" id="result-stats"></div>
+        <div id="result-messages"></div>
+
+        <div class="btn-row">
+          <button type="button" id="download-restored-btn" class="btn-primary">Download restored feedback</button>
+          <button type="button" id="copy-restored-btn">Copy to clipboard</button>
+          <span class="faint" id="download-status" role="status"></span>
+        </div>
+
+        <h3>Preview</h3>
+        <div class="doctabs" id="result-tabs" role="tablist" aria-label="Restored files"></div>
+        <div class="preview" id="result-preview" tabindex="0"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="shell">
+    <p>Nothing on this page is uploaded. Processing happens in this browser tab.</p>
+  </div>
+</footer>
+
+<script type="module" src="src/ui/restore.js"></script>
+</body>
+</html>

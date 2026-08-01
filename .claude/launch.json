@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dia",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/serve.js"],
+      "port": 4173
+    }
+  ]
+}

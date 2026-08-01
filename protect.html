@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protect documents — De-identification Assistant</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+<header class="masthead">
+  <div class="shell masthead__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">DIA</span>
+      <span>De-identification Assistant <span class="brand__sub">· for coursework</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="protect.html">Protect</a>
+      <a href="restore.html">Restore</a>
+      <a href="privacy.html">How it works</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="shell">
+    <div class="page-head">
+      <h1>Protect documents</h1>
+      <p>Everything below happens in this browser tab. Nothing is uploaded.</p>
+    </div>
+
+    <!-- Step 1 -->
+    <section class="card step step--active" id="step-roster" aria-labelledby="h-roster">
+      <div class="card__title">
+        <span class="step__number">1</span>
+        <h2 id="h-roster">Your class roster</h2>
+        <span class="card__hint">Used to find student names in the papers</span>
+      </div>
+
+      <div class="field">
+        <label for="roster-text">Paste one student per line, or a CSV</label>
+        <textarea id="roster-text" spellcheck="false" placeholder="Jane Smith
+Robert Jones, 00998877, rjones@example.edu
+Muñoz, José"></textarea>
+        <p class="field__help">
+          Accepts <code>Name</code>, <code>Last, First</code>, or CSV columns such as
+          <code>first,last,id,email</code>. A header row is detected automatically.
+          If a student goes by a nickname, add it as its own line.
+        </p>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" id="roster-file-btn" class="btn-sm">Load a CSV file instead</button>
+        <input type="file" id="roster-file" accept=".csv,.txt" class="visually-hidden" aria-label="Roster CSV file">
+        <span id="roster-summary" class="faint" role="status"></span>
+      </div>
+
+      <div class="field" id="roster-warnings"></div>
+
+      <details>
+        <summary>What else to look for <span class="faint">(optional)</span></summary>
+        <div class="field">
+          <label for="id-format">Student ID format</label>
+          <input type="text" id="id-format" placeholder="######## or W#######" spellcheck="false" autocomplete="off">
+          <p class="field__help">
+            Use <code>#</code> for a digit and <code>A</code> for a letter. Leave this empty if your
+            institution has no fixed format.
+          </p>
+        </div>
+        <fieldset>
+          <legend>Also look for these patterns</legend>
+          <div class="check-grid" id="recognizer-toggles"></div>
+        </fieldset>
+      </details>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="card step" id="step-files" aria-labelledby="h-files">
+      <div class="card__title">
+        <span class="step__number">2</span>
+        <h2 id="h-files">The papers</h2>
+        <span class="card__hint">Word, PDF, Markdown or plain text</span>
+      </div>
+
+      <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-describedby="dropzone-help">
+        <span class="dropzone__title">Drop files here, or click to choose</span>
+        <p id="dropzone-help">.docx, .pdf, .md, .txt — up to 40 files, 25 MB each</p>
+        <input type="file" id="file-input" multiple accept=".docx,.pdf,.md,.markdown,.txt,.text" class="visually-hidden" aria-label="Documents to protect">
+      </div>
+
+      <ul class="filelist" id="filelist"></ul>
+      <div id="file-problems"></div>
+
+      <div class="btn-row">
+        <button type="button" id="analyze-btn" class="btn-primary" disabled>Find personal information</button>
+        <button type="button" id="cancel-btn" hidden>Cancel</button>
+        <button type="button" id="clear-files-btn" class="btn-sm" hidden>Remove all files</button>
+      </div>
+
+      <div class="progress" id="progress" hidden>
+        <div class="progress__bar"><div class="progress__fill" id="progress-fill"></div></div>
+        <p class="progress__label" id="progress-label"></p>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="step" id="step-review" hidden aria-labelledby="h-review">
+      <div class="card">
+        <div class="card__title">
+          <span class="step__number">3</span>
+          <h2 id="h-review">Review before you export</h2>
+          <span class="card__hint">Nothing is removed until you export</span>
+        </div>
+
+        <div class="summary-grid" id="review-stats"></div>
+        <div id="review-messages"></div>
+
+        <div class="review">
+          <div>
+            <div class="doctabs" id="doctabs" role="tablist" aria-label="Documents"></div>
+            <div class="legend">
+              <span><i class="k-person"></i> Student name</span>
+              <span><i class="k-pattern"></i> Pattern match</span>
+              <span><i class="k-decision"></i> Needs your decision</span>
+              <span><i class="k-manual"></i> Redacted by you</span>
+            </div>
+            <div class="btn-row">
+              <button type="button" id="redact-selection-btn" class="btn-sm" disabled>Redact selected text</button>
+              <span class="faint">Select any passage in the document below — useful for details that identify a student without naming them.</span>
+            </div>
+            <div class="preview" id="preview" tabindex="0" aria-label="Document text with detections highlighted"></div>
+            <p class="faint" id="preview-note"></p>
+          </div>
+
+          <div class="sidepanel">
+            <div class="panel panel--alert" id="decisions-panel" hidden>
+              <h3>Needs your decision</h3>
+              <p class="faint" id="decisions-intro"></p>
+              <div class="panel__scroll" id="decisions-list"></div>
+              <div class="btn-row">
+                <button type="button" id="redact-all-btn" class="btn-sm">Redact all of them</button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>Everything found in this document</h3>
+              <div class="panel__scroll" id="detections-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" id="to-export-btn" class="btn-primary">Continue to export</button>
+          <span class="faint" id="export-gate-note"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="step" id="step-export" hidden aria-labelledby="h-export">
+      <div class="card">
+        <div class="card__title">
+          <span class="step__number">4</span>
+          <h2 id="h-export">Export</h2>
+          <span class="card__hint">Two separate downloads, on purpose</span>
+        </div>
+
+        <div class="exportstep" id="export-a">
+          <div class="exportstep__head">
+            <h3>1. The protected documents</h3>
+            <span class="pill pill--person">Safe to upload</span>
+          </div>
+          <p class="muted">
+            Names and other detected details are replaced with tokens. This is the archive you give
+            to the AI service. It also contains a suggested prompt that keeps the tokens intact and
+            makes the feedback easy to split back apart.
+          </p>
+          <div class="btn-row">
+            <button type="button" id="download-protected-btn" class="btn-primary">Download protected documents</button>
+            <span class="faint" id="protected-status" role="status"></span>
+          </div>
+        </div>
+
+        <div class="exportstep exportstep--sensitive exportstep--locked" id="export-b">
+          <div class="exportstep__head">
+            <h3>2. Your private re-identification map</h3>
+            <span class="pill pill--decision">Never upload this</span>
+          </div>
+          <p class="muted">
+            This file says which token means which student. Keep it as carefully as your gradebook,
+            and delete it once you have restored the feedback. You need it again on the
+            <a href="restore.html">Restore</a> page.
+          </p>
+
+          <div class="checkline">
+            <input type="checkbox" id="encrypt-toggle" checked>
+            <label for="encrypt-toggle">Protect this file with a passphrase (recommended)</label>
+          </div>
+
+          <div id="passphrase-fields">
+            <div class="field">
+              <label for="passphrase">Passphrase</label>
+              <input type="password" id="passphrase" autocomplete="new-password" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="passphrase2">Passphrase again</label>
+              <input type="password" id="passphrase2" autocomplete="new-password" spellcheck="false">
+              <p class="field__help">
+                There is no recovery. If you forget this, the map cannot be opened and you would have
+                to match feedback to students by hand.
+              </p>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" id="download-map-btn" class="btn-primary" disabled>Download the map</button>
+            <span class="faint" id="map-status" role="status"></span>
+          </div>
+        </div>
+
+        <div id="export-messages"></div>
+
+        <div class="btn-row">
+          <button type="button" id="back-to-review-btn" class="btn-sm">Back to review</button>
+          <button type="button" id="start-over-btn" class="btn-sm btn-danger">Start over</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="shell">
+    <p>Nothing on this page is uploaded. Processing happens in this browser tab.</p>
+  </div>
+</footer>
+
+<script type="module" src="src/ui/protect.js"></script>
+</body>
+</html>
