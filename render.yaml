@@ -3,7 +3,10 @@ services:
     runtime: static
     name: dia
     staticPublishPath: .
-    buildCommand: ""
+    # There is no build step: the browser runs the files in this repository as written.
+    # Render requires a build command for non-Docker services, so this is a deliberate
+    # no-op rather than an omission.
+    buildCommand: echo "No build step - static files are served as committed."
     pullRequestPreviewsEnabled: false
     headers:
       # No document data may leave the browser. connect-src 'none' blocks fetch/XHR/
