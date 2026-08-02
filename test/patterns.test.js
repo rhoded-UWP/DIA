@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import {
   findEmails, findPhones, findSsns, findCreditCards, findIpAddresses,
   findUrls, findAddresses, findDatesOfBirth, findStudentIds,
-  compileIdFormat, compileIdRegex, looksUnsafeRegex, luhnValid, findPatterns,
+  compileIdFormat, compileIdRegex, looksUnsafeRegex, luhnValid, findPatterns, RECOGNIZERS,
 } from '../src/engine/patterns.js';
+
+const RECOGNIZER_IDS = RECOGNIZERS.map((r) => r.id);
 
 const texts = (dets) => dets.map((d) => d.matched);
 
@@ -46,6 +48,36 @@ test('URLs stop at sentence punctuation', () => {
 test('street addresses need a street type', () => {
   assert.deepEqual(texts(findAddresses('at 1 University Plaza Drive today')), ['1 University Plaza Drive']);
   assert.deepEqual(texts(findAddresses('in 1999 many things happened')), []);
+});
+
+test('an address at the end of a sentence leaves the full stop behind', () => {
+  // Regression: the match used to include a trailing period so "St." could be matched
+  // whole, which swallowed the sentence's punctuation and left "The clinic is at [TOKEN]"
+  // with no full stop.
+  assert.deepEqual(texts(findAddresses('The clinic is at 4820 North Oakland Avenue.')), ['4820 North Oakland Avenue']);
+  assert.deepEqual(texts(findAddresses('She lives at 12 Oak St. It is nearby.')), ['12 Oak St']);
+  assert.deepEqual(texts(findAddresses('Mail it to 90 Elm Rd, apartment 4.')), ['90 Elm Rd']);
+});
+
+test('no recognizer swallows the punctuation that follows it', () => {
+  // The same mistake is easy to reintroduce in any pattern with an optional trailing
+  // character, so every recognizer is checked at the end of a sentence.
+  const cases = [
+    ['Write to jsmith@example.edu.', 'jsmith@example.edu'],
+    ['Call 608-555-1212.', '608-555-1212'],
+    ['His SSN is 123-45-6789.', '123-45-6789'],
+    ['The host was 10.14.22.9.', '10.14.22.9'],
+    ['See https://example.edu/page.', 'https://example.edu/page'],
+    ['Date of birth: 03/14/2003.', '03/14/2003'],
+    ['They live at 4820 North Oakland Avenue.', '4820 North Oakland Avenue'],
+  ];
+  for (const [sentence, expected] of cases) {
+    const found = findPatterns(sentence, { enabled: RECOGNIZER_IDS });
+    assert.equal(found.length, 1, `expected exactly one detection in: ${sentence}`);
+    assert.equal(found[0].matched, expected);
+    // The character after the match must still be the sentence's period.
+    assert.equal(sentence[found[0].end], '.', `punctuation was consumed in: ${sentence}`);
+  }
 });
 
 test('dates count only with birth context', () => {

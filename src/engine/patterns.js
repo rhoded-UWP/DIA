@@ -162,8 +162,13 @@ export function findUrls(text, out = []) {
 /* -------------------------------------------------------------- address --- */
 
 const STREET_TYPES = 'Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Way|Place|Pl|Terrace|Ter|Parkway|Pkwy|Highway|Hwy';
+
+// The match deliberately stops before any trailing period. Allowing one so that "St."
+// could be matched whole meant that in "…at 12 Oak St." the sentence's full stop was
+// consumed too, and the redacted line came back missing its punctuation. The dot is
+// inside redacted content either way, so leaving it in the sentence loses nothing.
 const ADDRESS_RE = new RegExp(
-  `${BOUNDARY_BEFORE}\\d{1,6}\\s+(?:[\\p{Lu}][\\p{L}\\p{M}'\\-]{0,20}\\s+){0,4}(?:${STREET_TYPES})\\.?${BOUNDARY_AFTER}`,
+  `${BOUNDARY_BEFORE}\\d{1,6}\\s+(?:[\\p{Lu}][\\p{L}\\p{M}'\\-]{0,20}\\s+){0,4}(?:${STREET_TYPES})${BOUNDARY_AFTER}`,
   'gu',
 );
 
